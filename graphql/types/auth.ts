@@ -1,4 +1,4 @@
-import { ObjectDefinitionBlock, objectType } from 'nexus/dist/core'
+import { nullable, ObjectDefinitionBlock, objectType } from 'nexus/dist/core'
 import { nonNull, stringArg } from 'nexus'
 
 export const RegisterResponsePayload = objectType({
@@ -28,6 +28,20 @@ export const ChangePasswordResponsePayload = objectType({
   },
 })
 
+export const Enable2FAResponsePayload = objectType({
+  name: 'Enable2FAResponsePayload',
+  definition(t: ObjectDefinitionBlock<'Enable2FAResponsePayload'>) {
+    t.string('qrCodeUrl')
+  },
+})
+
+export const Verify2FAResponsePayload = objectType({
+  name: 'Verify2FAResponsePayload',
+  definition(t: ObjectDefinitionBlock<'Verify2FAResponsePayload'>) {
+    t.boolean('success')
+  },
+})
+
 export const RegisterArgs = {
   name: nonNull(stringArg()),
   email: nonNull(stringArg()),
@@ -37,9 +51,16 @@ export const RegisterArgs = {
 export const LoginArgs = {
   email: nonNull(stringArg()),
   password: nonNull(stringArg()),
+  twoFactorAuthCode: nullable(stringArg()),
 }
 
 export const ChangePasswordArgs = {
   oldPassword: nonNull(stringArg()),
   newPassword: nonNull(stringArg()),
+}
+
+export const Enable2FAArgs = {}
+
+export const Verify2FAArgs = {
+  twoFactorAuthCode: nonNull(stringArg()),
 }

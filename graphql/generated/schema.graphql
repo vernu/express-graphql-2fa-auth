@@ -6,6 +6,10 @@ type ChangePasswordResponsePayload {
   success: Boolean
 }
 
+type Enable2FAResponsePayload {
+  qrCodeUrl: String
+}
+
 type LoginResponsePayload {
   accessToken: String
   user: User
@@ -13,8 +17,10 @@ type LoginResponsePayload {
 
 type Mutation {
   changePassword(newPassword: String!, oldPassword: String!): ChangePasswordResponsePayload!
-  login(email: String!, password: String!): LoginResponsePayload!
+  enable2FA: Enable2FAResponsePayload!
+  login(email: String!, password: String!, twoFactorAuthCode: String): LoginResponsePayload!
   register(email: String!, name: String!, password: String!): RegisterResponsePayload!
+  verify2FA(twoFactorAuthCode: String!): Verify2FAResponsePayload!
 }
 
 type Query {
@@ -30,4 +36,9 @@ type User {
   email: String
   id: String!
   name: String
+  twoFactorAuthEnabled: Boolean
+}
+
+type Verify2FAResponsePayload {
+  success: Boolean
 }

@@ -6,5 +6,6 @@ export const User = objectType({
     t.nonNull.string('id')
     t.nullable.string('email')
     t.nullable.string('name')
+    t.boolean('twoFactorAuthEnabled')
   },
 })
