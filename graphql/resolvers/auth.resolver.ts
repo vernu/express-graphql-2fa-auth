@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs'
-import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
 import { Context } from '../context'
 import {
@@ -11,7 +9,7 @@ import {
 } from '../../utils/auth.utils'
 
 export const registerResolver = async (_root: any, args: any, ctx: Context) => {
-  const hashedPassword = bcrypt.hashSync(args.password, 10)
+  const hashedPassword = await hashPassword(args.password)
   const user = await ctx.prismaClient.user.create({
     data: {
       name: args.name,
@@ -44,19 +42,20 @@ export const loginResolver = async (
     throw new Error('2FA code required')
   }
 
-  const validCredentials =
-    user && (await bcrypt.compare(args.password, user.password ?? ''))
+  const validCredentials = await verifyPassword(
+    args.password,
+    user?.password ?? ''
+  )
 
-  if (!validCredentials) {
+  if (!user || !validCredentials) {
     throw new Error('Invalid credentials')
   }
 
   if (user.twoFactorAuthEnabled) {
-    const verified = speakeasy.totp.verify({
-      secret: user?.twoFactorAuthSecret ?? '',
-      encoding: 'base32',
-      token: args.twoFactorAuthCode ?? '',
-    })
+    const verified = await verifyOtpCode(
+      args.twoFactorAuthCode,
+      user.twoFactorAuthSecret ?? ''
+    )
 
     if (!verified) {
       throw new Error('Invalid 2FA code')
