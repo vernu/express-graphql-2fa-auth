@@ -35,6 +35,13 @@ export const Enable2FAResponsePayload = objectType({
   },
 })
 
+export const Disable2FAResponsePayload = objectType({
+  name: 'Disable2FAResponsePayload',
+  definition(t: ObjectDefinitionBlock<'Disable2FAResponsePayload'>) {
+    t.boolean('success')
+  },
+})
+
 export const Verify2FAResponsePayload = objectType({
   name: 'Verify2FAResponsePayload',
   definition(t: ObjectDefinitionBlock<'Verify2FAResponsePayload'>) {

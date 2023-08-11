@@ -31,6 +31,9 @@ export interface NexusGenObjects {
   ChangePasswordResponsePayload: { // root type
     success?: boolean | null; // Boolean
   }
+  Disable2FAResponsePayload: { // root type
+    success?: boolean | null; // Boolean
+  }
   Enable2FAResponsePayload: { // root type
     qrCodeUrl?: string | null; // String
   }
@@ -69,6 +72,9 @@ export interface NexusGenFieldTypes {
   ChangePasswordResponsePayload: { // field return type
     success: boolean | null; // Boolean
   }
+  Disable2FAResponsePayload: { // field return type
+    success: boolean | null; // Boolean
+  }
   Enable2FAResponsePayload: { // field return type
     qrCodeUrl: string | null; // String
   }
@@ -78,6 +84,7 @@ export interface NexusGenFieldTypes {
   }
   Mutation: { // field return type
     changePassword: NexusGenRootTypes['ChangePasswordResponsePayload']; // ChangePasswordResponsePayload!
+    disable2FA: NexusGenRootTypes['Disable2FAResponsePayload']; // Disable2FAResponsePayload!
     enable2FA: NexusGenRootTypes['Enable2FAResponsePayload']; // Enable2FAResponsePayload!
     login: NexusGenRootTypes['LoginResponsePayload']; // LoginResponsePayload!
     register: NexusGenRootTypes['RegisterResponsePayload']; // RegisterResponsePayload!
@@ -105,6 +112,9 @@ export interface NexusGenFieldTypeNames {
   ChangePasswordResponsePayload: { // field return type name
     success: 'Boolean'
   }
+  Disable2FAResponsePayload: { // field return type name
+    success: 'Boolean'
+  }
   Enable2FAResponsePayload: { // field return type name
     qrCodeUrl: 'String'
   }
@@ -114,6 +124,7 @@ export interface NexusGenFieldTypeNames {
   }
   Mutation: { // field return type name
     changePassword: 'ChangePasswordResponsePayload'
+    disable2FA: 'Disable2FAResponsePayload'
     enable2FA: 'Enable2FAResponsePayload'
     login: 'LoginResponsePayload'
     register: 'RegisterResponsePayload'

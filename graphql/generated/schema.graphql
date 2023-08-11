@@ -6,6 +6,10 @@ type ChangePasswordResponsePayload {
   success: Boolean
 }
 
+type Disable2FAResponsePayload {
+  success: Boolean
+}
+
 type Enable2FAResponsePayload {
   qrCodeUrl: String
 }
@@ -17,6 +21,7 @@ type LoginResponsePayload {
 
 type Mutation {
   changePassword(newPassword: String!, oldPassword: String!): ChangePasswordResponsePayload!
+  disable2FA: Disable2FAResponsePayload!
   enable2FA: Enable2FAResponsePayload!
   login(email: String!, password: String!, twoFactorAuthCode: String): LoginResponsePayload!
   register(email: String!, name: String!, password: String!): RegisterResponsePayload!

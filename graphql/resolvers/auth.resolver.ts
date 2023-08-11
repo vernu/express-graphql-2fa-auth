@@ -179,3 +179,34 @@ export const verify2FAResolver = async (
     success: verified,
   }
 }
+
+export const disable2FAResolver = async (
+  _root: any,
+  _args: any,
+  ctx: Context
+) => {
+  if (!ctx.user) {
+    throw new Error('Not authenticated')
+  }
+
+  const user = await ctx.prismaClient.user.findUnique({
+    where: {
+      id: ctx.user.id,
+    },
+  })
+
+  if (user?.twoFactorAuthEnabled === false) {
+    throw new Error('2FA not enabled')
+  }
+
+  await ctx.prismaClient.user.update({
+    where: {
+      id: ctx.user.id,
+    },
+    data: { twoFactorAuthEnabled: false },
+  })
+
+  return {
+    success: true,
+  }
+}

@@ -6,6 +6,7 @@ import {
   changePasswordResolver,
   enable2FAResolver,
   verify2FAResolver,
+  disable2FAResolver,
 } from '../resolvers'
 import {
   RegisterArgs,
@@ -59,6 +60,15 @@ export const Enable2FA = extendType({
   },
 })
 
+export const Disble2FA = extendType({
+  type: 'Mutation',
+  definition(t) {
+    t.nonNull.field('disable2FA', {
+      type: 'Disable2FAResponsePayload',
+      resolve: disable2FAResolver,
+    })
+  },
+})
 
 export const Verify2FA = extendType({
   type: 'Mutation',
