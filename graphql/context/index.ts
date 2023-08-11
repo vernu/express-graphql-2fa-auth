@@ -1,16 +1,16 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, User } from '@prisma/client'
 import prismaClient from '../../prisma/prismaClient'
-import { verifyToken } from '../../utils'
+import { verifyAccessToken } from '../../utils/auth.utils'
 
 export type Context = {
   prismaClient: PrismaClient
-  user: any
+  user: User | null
 }
 
-const getLoggedInUser = async (req: any) => {
+const getLoggedInUser = async (req: any): Promise<User | null> => {
   try {
     const token = req.headers?.authorization?.split(' ')[1]
-    const userId = (await verifyToken(token))?.id
+    const userId = (await verifyAccessToken(token))?.id
     if (!userId) {
       return null
     }

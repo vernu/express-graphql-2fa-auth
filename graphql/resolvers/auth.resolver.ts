@@ -2,7 +2,13 @@ import bcrypt from 'bcryptjs'
 import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
 import { Context } from '../context'
-import { generateToken } from '../../utils'
+import {
+  generateAccessToken,
+  generateOtpSecret,
+  hashPassword,
+  verifyOtpCode,
+  verifyPassword,
+} from '../../utils/auth.utils'
 
 export const registerResolver = async (_root: any, args: any, ctx: Context) => {
   const hashedPassword = bcrypt.hashSync(args.password, 10)
@@ -15,11 +21,19 @@ export const registerResolver = async (_root: any, args: any, ctx: Context) => {
   })
   return {
     user,
-    accessToken: generateToken(user.id),
+    accessToken: generateAccessToken(user.id),
   }
 }
 
-export const loginResolver = async (_root: any, args: any, ctx: Context) => {
+export const loginResolver = async (
+  _root: any,
+  args: {
+    email: string
+    twoFactorAuthCode?: any
+    password: string
+  },
+  ctx: Context
+) => {
   const user = await ctx.prismaClient.user.findUnique({
     where: {
       email: args.email,
@@ -51,13 +65,13 @@ export const loginResolver = async (_root: any, args: any, ctx: Context) => {
 
   return {
     user,
-    accessToken: generateToken(user.id),
+    accessToken: generateAccessToken(user.id),
   }
 }
 
 export const changePasswordResolver = async (
   _root: any,
-  args: any,
+  args: { oldPassword: string; newPassword: string },
   ctx: Context
 ) => {
   if (!ctx.user) {
@@ -69,13 +83,16 @@ export const changePasswordResolver = async (
       id: ctx.user.id,
     },
   })
-  const validCredentials =
-    user && (await bcrypt.compare(args.oldPassword, user.password ?? ''))
-
+  const validCredentials = await verifyPassword(
+    args.oldPassword,
+    user?.password ?? ''
+  )
   if (!validCredentials) {
     throw new Error('Invalid credentials')
   }
-  const newHashedPassword = bcrypt.hashSync(args.newPassword, 10)
+
+  const newHashedPassword = await hashPassword(args.newPassword)
+
   await ctx.prismaClient.user.update({
     where: {
       id: ctx.user.id,
@@ -91,7 +108,7 @@ export const changePasswordResolver = async (
 
 export const enable2FAResolver = async (
   _root: any,
-  args: any,
+  _args: any,
   ctx: Context
 ) => {
   if (!ctx.user) {
@@ -108,7 +125,7 @@ export const enable2FAResolver = async (
     throw new Error('2FA already enabled')
   }
 
-  const secret = speakeasy.generateSecret()
+  const secret = generateOtpSecret()
 
   await ctx.prismaClient.user.update({
     where: {
@@ -128,28 +145,24 @@ export const enable2FAResolver = async (
 
 export const verify2FAResolver = async (
   _root: any,
-  args: any,
+  args: { twoFactorAuthCode: string },
   ctx: Context
 ) => {
   if (!ctx.user) {
     throw new Error('Not authenticated')
   }
 
-  let twoFactorAuthCode = args.twoFactorAuthCode
-  // Remove spaces from the 2FA code
-  twoFactorAuthCode = twoFactorAuthCode.replace(/\s/g, '')
-
+  const twoFactorAuthCode = args.twoFactorAuthCode
   const user = await ctx.prismaClient.user.findUnique({
     where: {
       id: ctx.user.id,
     },
   })
 
-  const verified = speakeasy.totp.verify({
-    secret: user?.twoFactorAuthSecret ?? '',
-    encoding: 'base32',
-    token: twoFactorAuthCode,
-  })
+  const verified = await verifyOtpCode(
+    twoFactorAuthCode,
+    user?.twoFactorAuthSecret ?? ''
+  )
 
   if (verified) {
     await ctx.prismaClient.user.update({

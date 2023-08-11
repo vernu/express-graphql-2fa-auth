@@ -1,5 +1,5 @@
 import { extendType } from 'nexus'
-import { Context } from '../context'
+
 import {
   registerResolver,
   loginResolver,
